@@ -1,0 +1,6 @@
+startx: 16 starty: 6 height: 6 width: 18
+startx: 48 starty: 6 height: 6 width: 6
+startx: 86 starty: 3 height: 6 width: 6
+startx: 86 starty: 18 height: 6 width: 6
+startx: 46 starty: 18 height: 6 width: 6
+startx: 6 starty: 18 height: 6 width: 6

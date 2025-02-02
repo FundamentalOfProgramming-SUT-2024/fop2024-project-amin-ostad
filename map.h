@@ -39,3 +39,4 @@ void add_door_3(room *r);
 void add_door_4(room *r);
 void add_door_5(room *r);
 void add_door_6(room *r);
+int check_weapon(int y, int x );

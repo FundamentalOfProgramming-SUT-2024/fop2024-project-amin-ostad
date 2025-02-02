@@ -20,6 +20,7 @@ typedef struct {
     int starty;
     int height;
     int width;
+    Position * weapon;
     Position **Gold;
     Position **traps;
     Position **food;
@@ -33,6 +34,7 @@ typedef struct {
     int yposition;
     int health;
     int gold;
+    char weapon;
 } player;
 
 room rooms[NUM_ROOMS]; 
@@ -47,6 +49,7 @@ void add_door_4(room *r);
 void add_door_5(room *r);
 void add_door_6(room *r);
 //void create_hallway(Position * door1 , Position * door2);
+int check_weapon(int y, int x );
 
 
 void initialize_map() {
@@ -117,7 +120,7 @@ void initialize_map() {
 void detail_room(room *r) {
     for (int i = r->startx + 1; i < r->startx + r->width - 1; i++) {
         for (int j = r->starty + 1; j < r->starty + r->height - 1; j++) {
-            mvaddch(j, i, '.');  // Fill room with floor
+            mvaddch(j, i, '.'); 
         }
     }
 
@@ -128,11 +131,11 @@ void detail_room(room *r) {
         do {
             pillar_x = (rand() % (r->width - 4)) + r->startx + 2;
             pillar_y = (rand() % (r->height - 4)) + r->starty + 2;
-        } while (mvinch(pillar_y, pillar_x) != '.'); // Ensure no overlap
+        } while (mvinch(pillar_y, pillar_x) != '.');
         mvaddch(pillar_y, pillar_x, 'O');
     }
 
-    // Allocate and place food
+
     int num_food = (r->height * r->width > 40) ? 2 : 1;
     r->food = (Position **)malloc(num_food * sizeof(Position *));
     for (int i = 0; i < num_food; i++) {
@@ -167,7 +170,14 @@ void detail_room(room *r) {
         mvaddch(r->Gold[i]->y, r->Gold[i]->x, 'G');
     }
 
-
+    r->weapon = (Position *)malloc(sizeof(Position));
+    char weapon_array[5] = { 'M' , 'D' , 'W' , 'A' , 'S'};
+    do {
+            r->weapon->x = (rand() % (r->width - 2)) + r->startx + 1;
+            r->weapon->y = (rand() % (r->height - 2)) + r->starty + 1;
+        } while (mvinch(r->weapon->y, r->weapon->x) != '.');
+    int weapon_num = rand() % 5;
+    mvaddch(r->weapon->y , r->weapon->x , weapon_array[weapon_num]);
     refresh();
 }
 
@@ -282,6 +292,31 @@ void add_door_6(room *r){
     wrefresh(r->win);
 }
 
+int check_weapon(int y, int x){
+    if(mvinch(y , x) == 'M'){
+        mvprintw(0 , 2 , "%s" , "You picked up a Mace!                                 ");
+        return 1;
+    }
+    else if(mvinch(y , x) == 'S'){
+        mvprintw(0 , 2 , "%s" , "You picked up a Sword!                                 ");
+        return 1;
+    }
+    else if(mvinch(y , x) == 'D'){
+        mvprintw(0 , 2 , "%s" , "You picked up a Dagger!                                 ");
+        return 1;
+    }
+    else if(mvinch(y , x) == 'W'){
+        mvprintw(0 , 2 , "%s" , "You picked up a Magic Wand!                                 ");
+        return 1;
+    }
+    else if(mvinch(y , x) == 'A'){
+        mvprintw(0 , 2 , "%s" , "You picked up an Arrow!                                 ");
+        return 1;
+    }
+    return 0;
+}
+
+
 
 
 void move_character(room *r) {
@@ -289,12 +324,13 @@ void move_character(room *r) {
     user.xposition = r->startx + 1;
     user.yposition = r->starty + 1;
     user.health = 30;
+    user.gold = 0;
 
     int ch;
-    mvaddch(user.yposition, user.xposition, '@'); // Draw character initially
+    mvaddch(user.yposition, user.xposition, '@');
     refresh();
     int t = 0;
-    while ((ch = getch()) != 'q') { // 'q' to quit
+    while ((ch = getch()) != 'q') { 
         if(t == 0){
             mvaddch(user.yposition, user.xposition, '.'); 
         }
@@ -304,12 +340,15 @@ void move_character(room *r) {
         }
         switch (ch) {
             case KEY_UP:
-                if (mvinch(user.yposition - 1, user.xposition) == '.'){
+                if(check_weapon(user.yposition - 1 , user.xposition)){
+                    user.yposition--;
+                }
+                else if (mvinch(user.yposition - 1, user.xposition) == '.'){
                     user.yposition--;
                     for(int i = 0; r->traps[i] != NULL ; i++){
                         if(r->traps[i]->x == user.xposition && r->traps[i]->y == user.yposition){
                             user.health -= 10;
-                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d" , user.health);
+                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d         " , user.health);
                             t = 1;
                         }
                     }
@@ -317,21 +356,24 @@ void move_character(room *r) {
                 else if (mvinch(user.yposition - 1, user.xposition) == 'F'){
                     user.yposition--;
                     user.health += 10;
-                    mvprintw(0 , 2 ,"You ate food. Your health is %d            " , user.health);
+                    mvprintw(0 , 2 ,"You ate food. Your health is %d                 " , user.health);
                 }
-                else if (mvinch(user.yposition - 1, user.xposition) == 'F'){
+                else if (mvinch(user.yposition - 1, user.xposition) == 'G'){
                     user.yposition--;
-                    user.health += 10;
-                    mvprintw(0 , 2 ,"You ate food. Your health is %d            " , user.health);
+                    user.gold += (rand() % 5) + 1;
+                    mvprintw(0 , 2 ,"You gained a bag of gold. You now have %d gold" , user.gold);
                 }
                 break;
             case KEY_DOWN:
-                if (mvinch(user.yposition + 1, user.xposition) == '.'){
+                if(check_weapon(user.yposition + 1 , user.xposition)){
+                    user.yposition++;
+                }
+                else if (mvinch(user.yposition + 1, user.xposition) == '.'){
                     user.yposition++;
                     for(int i = 0; r->traps[i] != NULL ; i++){
                         if(r->traps[i]->x == user.xposition && r->traps[i]->y == user.yposition){
                             user.health -= 10;
-                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d" , user.health);
+                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d        " , user.health);
                             t = 1;
                         }
                     }
@@ -339,17 +381,24 @@ void move_character(room *r) {
                 else if (mvinch(user.yposition + 1, user.xposition) == 'F'){
                     user.yposition++;
                     user.health += 10;
-                    mvprintw(0 , 2 ,"You ate food. Your health is %d            " , user.health);
+                    mvprintw(0 , 2 ,"You ate food. Your health is %d                " , user.health);
                 }
-                
+                else if (mvinch(user.yposition + 1, user.xposition) == 'G'){
+                    user.yposition++;
+                    user.gold += (rand() % 5) + 1;
+                    mvprintw(0 , 2 ,"You gained a bag of gold. You now have %d gold" , user.gold);
+                }
                 break;
             case KEY_LEFT:
-                if (mvinch(user.yposition, user.xposition - 1) == '.'){
+                if(check_weapon(user.yposition  , user.xposition - 1)){
+                    user.xposition--;
+                }
+                else if (mvinch(user.yposition, user.xposition - 1) == '.'){
                     user.xposition--;
                     for(int i = 0; r->traps[i] != NULL ; i++){
                         if(r->traps[i]->x == user.xposition && r->traps[i]->y == user.yposition){
                             user.health -= 10;
-                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d" , user.health);
+                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d        " , user.health);
                             t = 1;
                         }
                     }
@@ -357,16 +406,24 @@ void move_character(room *r) {
                 else if (mvinch(user.yposition , user.xposition - 1) == 'F'){
                     user.xposition--;
                     user.health += 10;
-                    mvprintw(0 , 2 ,"You ate food. Your health is %d            " , user.health);
-                    }
+                    mvprintw(0 , 2 ,"You ate food. Your health is %d               " , user.health);
+                }
+                else if (mvinch(user.yposition , user.xposition - 1) == 'G'){
+                    user.xposition--;
+                    user.gold += (rand() % 5) + 1;
+                    mvprintw(0 , 2 ,"You gained a bag of gold. You now have %d gold" , user.gold);
+                }
                 break;
             case KEY_RIGHT:
-                if (mvinch(user.yposition, user.xposition + 1) == '.'){
+                if(check_weapon(user.yposition  , user.xposition + 1)){
+                    user.xposition++;
+                }
+                else if (mvinch(user.yposition, user.xposition + 1) == '.'){
                     user.xposition++;
                     for(int i = 0; r->traps[i] != NULL ; i++){
                         if(r->traps[i]->x == user.xposition && r->traps[i]->y == user.yposition){
                             user.health -= 10;
-                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d" , user.health);
+                            mvprintw(0 , 2 , "You stepped on a trap. your health is %d        " , user.health);
                             t = 1;
                         }
                     }
@@ -374,8 +431,13 @@ void move_character(room *r) {
                 else if (mvinch(user.yposition , user.xposition + 1) == 'F'){
                     user.xposition++;
                     user.health += 10;
-                    mvprintw(0 , 2 ,"You ate food. Your health is %d            " , user.health);
-                    }
+                    mvprintw(0 , 2 ,"You ate food. Your health is %d               " , user.health);
+                }
+                else if (mvinch(user.yposition , user.xposition + 1) == 'G'){
+                    user.xposition++;
+                    user.gold += (rand() % 5) + 1;
+                    mvprintw(0 , 2 ,"You gained a bag of gold. You now have %d gold" , user.gold);
+                }
                 break;
         }
         mvaddch(user.yposition, user.xposition, '@'); // Draw new position

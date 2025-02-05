@@ -40,3 +40,4 @@ void add_door_4(room *r);
 void add_door_5(room *r);
 void add_door_6(room *r);
 int check_weapon(int y, int x );
+void check_traps(room *r, player *user);

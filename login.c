@@ -269,13 +269,13 @@ void print_scoreboard(){
 
     int height, width;
     getmaxyx(stdscr, height, width);
-    WINDOW *win = newwin(15, 40, (height - 15) / 2, (width - 40) / 2);
+    WINDOW *win = newwin(15, 50, (height - 15) / 2, (width - 40) / 2);
     box(win , 0 ,0 );
     FILE* read_fptr = fopen("userpass.txt" , "r");
     char line[500];
     for(int i = 0 ; i < 3 && fgets(line, 500 , read_fptr) ; i++){
         char* user = strtok(line,"," );
-        mvwprintw(win ,2*i+2 , 2 , "User: %s Score: %d Rank: %d" , user ,7*i+3, i+1);
+        mvwprintw(win ,2*i+2 , 2 , "User: %-11s Score: %-2d Rank: %-2d Gold %-2d" , user ,7*i+3, i+1 , 5 + 3*i);
     }
     wrefresh(win);
     refresh();
@@ -343,9 +343,11 @@ void settings(){
         delwin(menu_win);
         mvprintw(LINES/2 , COLS/2 - 20 , "Enter a number from 1 to 5 to set difficulity");
         int difficulity = getch();
+        first_page();
     }
     else if(choice == 2){
         //change_color();
+        first_page();
     }
     refresh();
     getch();
@@ -425,4 +427,3 @@ void first_page() {
     getch();
     endwin();
 }
-

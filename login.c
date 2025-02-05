@@ -37,6 +37,8 @@ int user_login() {
 
         echo();
         curs_set(1);
+        mvprintw(2, 0 , "Enter g for username and password to enter an guest");
+        refresh();
         wmove(login_win, 3, 12);
         wscanw(login_win, "%s", username);
         noecho();

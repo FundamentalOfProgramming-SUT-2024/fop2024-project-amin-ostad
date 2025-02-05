@@ -1,7 +1,7 @@
-Room 0 -> startx: 16, starty: 7, height: 6, width: 15
-Room 1 -> startx: 50, starty: 5, height: 6, width: 10
-Room 2 -> startx: 82, starty: 7, height: 6, width: 27
-Room 3 -> startx: 8, starty: 20, height: 6, width: 19
-Room 4 -> startx: 52, starty: 19, height: 7, width: 23
-Room 5 -> startx: 97, starty: 22, height: 6, width: 10
-x_position: 21, y_position: 11, health: 0, gold: 6
+Room 0 -> startx: 7, starty: 7, height: 6, width: 21
+Room 1 -> startx: 45, starty: 7, height: 6, width: 11
+Room 2 -> startx: 95, starty: 3, height: 6, width: 8
+Room 3 -> startx: 6, starty: 21, height: 6, width: 17
+Room 4 -> startx: 53, starty: 17, height: 6, width: 21
+Room 5 -> startx: 88, starty: 16, height: 10, width: 10
+x_position: 8, y_position: 8, health: 30, gold: 0
